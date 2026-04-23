@@ -1,0 +1,43 @@
+Sub SendRestockingAlert()
+
+    Dim OutlookApp As Object
+    Dim MailItem As Object
+    Dim i As Long
+    Dim lastRow As Long
+    
+    On Error GoTo ErrorHandler
+
+    Set OutlookApp = CreateObject("Outlook.Application")
+    
+    lastRow = Cells(Rows.Count, "A").End(xlUp).Row
+
+    For i = 2 To lastRow
+        
+        If LCase(Trim(Cells(i, "L").Value)) = "yes" Then
+            
+            Set MailItem = OutlookApp.CreateItem(0)
+            
+            With MailItem
+                .To = Cells(i, "F").Value   'Assuming email column
+                .Subject = "Restocking Alert: " & Cells(i, "B").Value
+                
+                .Body = "Product: " & Cells(i, "B").Value & vbCrLf & _
+                        "Current Stock: " & Cells(i, "D").Value & vbCrLf & _
+                        "Reorder Level: " & Cells(i, "E").Value & vbCrLf & vbCrLf & _
+                        "Action Required: Please restock."
+
+                .Display   'Testing ke liye
+                ' .Send     'Production me use karo
+            End With
+            
+        End If
+        
+    Next i
+
+    MsgBox "Restocking alerts processed!", vbInformation
+    Exit Sub
+
+ErrorHandler:
+    MsgBox "Error: " & Err.Description, vbCritical
+
+End Sub
